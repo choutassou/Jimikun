@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WizardApp": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\user\\OneDrive\\001.develop\\006.TestTools\\test-step1s.csv"
+    }
+  }
+}
