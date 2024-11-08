@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCShoot", "SCShoot\SCShoot.csproj", "{0303B40D-3841-4012-A37B-D785A259B84E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WizardApp", "WizardApp\WizardApp.csproj", "{22DEDE7E-D0C3-49B8-9CCA-2BD5F62C0E9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JimiKun", "WizardApp\JimiKun.csproj", "{22DEDE7E-D0C3-49B8-9CCA-2BD5F62C0E9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

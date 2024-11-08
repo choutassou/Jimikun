@@ -1,22 +1,39 @@
-namespace WizardApp;
+using System.Text;
 
-static class Program
+namespace Jimikun
 {
-    /// <summary>
-    ///  The main entry point for the application.
-    /// </summary>
-    [STAThread]
-    static void Main(string[] args)
+    static class Program
     {
-        // 引数が足りているかを確認
-        if (args.Length < 1)
+        [STAThread]
+        static void Main(string[] args)
         {
-            MessageBox.Show("使用方法: Wizard.exe <CSVpath>");
-            return;
+            string csvPath = args.Length > 0 ? args[0] : LoadPathFromIni();
+
+            ApplicationConfiguration.Initialize();
+            csvPath = ShowCsvPathForm(csvPath);
+            
+            if (!string.IsNullOrEmpty(csvPath))
+            {
+                Application.Run(new Wizard(csvPath));
+            }
         }
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
-        ApplicationConfiguration.Initialize();
-        Application.Run(new Wizard(args[0]));
-    }    
+
+        static string LoadPathFromIni()
+        {
+            string iniPath = "jimi.ini";
+            if (File.Exists(iniPath))
+            {
+                return File.ReadAllText(iniPath, Encoding.UTF8).Trim();
+            }
+            return string.Empty;
+        }
+
+        static string ShowCsvPathForm(string defaultPath)
+        {
+            using (CsvPathForm form = new CsvPathForm(defaultPath))
+            {
+                return form.ShowDialog() == DialogResult.OK ? form.CsvPath : string.Empty;
+            }
+        }
+    }
 }
