@@ -19,6 +19,7 @@ namespace Jimikun
         private DateTime overallStartTime;
         private Dictionary<string, TimeSpan> majorStepTimes = new Dictionary<string, TimeSpan>();
         private List<string> logEntries = new List<string>();
+        private Label windowLabel;
         private string csvPath;
 
         public Wizard(string csvPath)
@@ -53,6 +54,7 @@ namespace Jimikun
             operationTextBox = new TextBox();
             warningLabel = new Label();
             nextButton = new Button();
+            windowLabel = new Label();
             SuspendLayout();
             // 
             // stepLabel
@@ -69,30 +71,40 @@ namespace Jimikun
             operationTextBox.Location = new Point(19, 76);
             operationTextBox.Name = "operationTextBox";
             operationTextBox.ReadOnly = true;
-            operationTextBox.Size = new Size(965, 53);
+            operationTextBox.Size = new Size(965, 44);
             operationTextBox.TabIndex = 1;
             // 
             // warningLabel
             // 
             warningLabel.Font = new Font("Arial", 20F, FontStyle.Bold);
             warningLabel.ForeColor = Color.Red;
-            warningLabel.Location = new Point(19, 149);
+            warningLabel.Location = new Point(21, 210);
             warningLabel.Name = "warningLabel";
-            warningLabel.Size = new Size(965, 49);
+            warningLabel.Size = new Size(696, 49);
             warningLabel.TabIndex = 2;
             // 
             // nextButton
             // 
-            nextButton.Location = new Point(760, 219);
+            nextButton.Location = new Point(760, 236);
             nextButton.Name = "nextButton";
             nextButton.Size = new Size(224, 50);
             nextButton.TabIndex = 3;
             nextButton.Text = "次へ";
             nextButton.Click += NextButton_Click;
             // 
+            // windowLabel
+            // 
+            windowLabel.Font = new Font("Arial", 16F, FontStyle.Bold);
+            windowLabel.ForeColor = Color.Black;
+            windowLabel.Location = new Point(21, 139);
+            windowLabel.Name = "windowLabel";
+            windowLabel.Size = new Size(708, 49);
+            windowLabel.TabIndex = 4;
+            // 
             // Wizard
             // 
-            ClientSize = new Size(997, 283);
+            ClientSize = new Size(997, 301);
+            Controls.Add(windowLabel);
             Controls.Add(stepLabel);
             Controls.Add(operationTextBox);
             Controls.Add(warningLabel);
@@ -139,7 +151,15 @@ namespace Jimikun
             var row = stepsTable.Rows[index];
             stepLabel.Text = $"手順番号：{row["Step大"]}-{row["Step小"]}";
             operationTextBox.Text = row["操作"].ToString();
-            warningLabel.Text = $"{row["入力Window"]} {row["備考"]}";
+            warningLabel.Text = $"{row["備考"]}";
+            if (!string.IsNullOrWhiteSpace(row["操作Window"].ToString()))
+            {
+                windowLabel.Text = $"操作ウインドウ：{row["操作Window"]}";
+            }
+            else
+            {
+                windowLabel.Text = "";
+            }
             // クリップボードに warningLabel.Text の内容をコピー
             Clipboard.SetText(operationTextBox.Text);
         }
@@ -197,7 +217,7 @@ namespace Jimikun
         private void GenerateReport(TimeSpan overallDuration)
         {
             string pathWithoutExtension = Path.GetDirectoryName(csvPath);
-            string reportPath = pathWithoutExtension + "\\TestReport.txt";
+            string reportPath = pathWithoutExtension + "\\OperationReport.txt";
             using (StreamWriter writer = new StreamWriter(reportPath))
             {
                 writer.WriteLine("手順レポート");
