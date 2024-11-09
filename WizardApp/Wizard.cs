@@ -151,7 +151,7 @@ namespace Jimikun
             var row = stepsTable.Rows[index];
             stepLabel.Text = $"手順番号：{row["Step大"]}-{row["Step小"]}";
             operationTextBox.Text = row["操作"].ToString();
-            warningLabel.Text = $"{row["備考"]}";
+            warningLabel.Text = $"{row["注意事項"]}";
             if (!string.IsNullOrWhiteSpace(row["操作Window"].ToString()))
             {
                 windowLabel.Text = $"操作ウインドウ：{row["操作Window"]}";

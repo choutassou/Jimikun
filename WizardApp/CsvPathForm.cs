@@ -34,6 +34,42 @@ namespace Jimikun
             string csvPath = csvPathTextBox.Text;
             if (File.Exists(csvPath))
             {
+                // 必要な列名
+                var requiredColumns = new List<string>
+                {
+                    "Step大", "Step小", "操作", "注意事項", "操作Window",
+                    "キャプチャフォルダ", "キャプチャー１", "キャプチャー２", "キャプチャー３", "キャプチャー４"
+                };
+
+                // CSVの列チェック
+                var missingColumns = new List<string>();
+                EncodingProvider provider = System.Text.CodePagesEncodingProvider.Instance;
+                using (var reader = new StreamReader(csvPath, provider.GetEncoding("shift-jis")))
+                {
+                    string headerLine = reader.ReadLine();
+                    if (headerLine != null)
+                    {
+                        var headers = headerLine.Split(',');
+                        foreach (var column in requiredColumns)
+                        {
+                            if (!headers.Contains(column))
+                            {
+                                missingColumns.Add(column);
+                            }
+                        }
+                    }
+                }
+
+                // 足りない列がある場合、エラーメッセージを表示
+                if (missingColumns.Count > 0)
+                {
+                    string missingColumnsMessage = string.Join(", ", missingColumns);
+                    MessageBox.Show($"指定ファイルのフォーマットは不正です。以下の列が必要です: {missingColumnsMessage}",
+                                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // 列が揃っている場合、処理を進む
                 CsvPath = csvPath;
                 DialogResult = DialogResult.OK;
                 Close();
@@ -43,6 +79,7 @@ namespace Jimikun
                 MessageBox.Show("指定された手順ファイルが見つかりません。再度入力してください。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void InitializeComponent()
         {
@@ -125,4 +162,4 @@ namespace Jimikun
     }
 }
 
-  
+
