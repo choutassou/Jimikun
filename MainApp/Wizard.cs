@@ -20,6 +20,7 @@ namespace Jimikun
         private Dictionary<string, TimeSpan> majorStepTimes = new Dictionary<string, TimeSpan>();
         private List<string> logEntries = new List<string>();
         private Label windowLabel;
+        private Button failureButton;
         private string csvPath;
 
         public Wizard(string csvPath)
@@ -55,6 +56,7 @@ namespace Jimikun
             warningLabel = new Label();
             nextButton = new Button();
             windowLabel = new Label();
+            failureButton = new Button();
             SuspendLayout();
             // 
             // stepLabel
@@ -62,7 +64,7 @@ namespace Jimikun
             stepLabel.Font = new Font("Arial", 16F, FontStyle.Bold);
             stepLabel.Location = new Point(21, 19);
             stepLabel.Name = "stepLabel";
-            stepLabel.Size = new Size(493, 43);
+            stepLabel.Size = new Size(492, 43);
             stepLabel.TabIndex = 0;
             // 
             // operationTextBox
@@ -71,23 +73,23 @@ namespace Jimikun
             operationTextBox.Location = new Point(19, 76);
             operationTextBox.Name = "operationTextBox";
             operationTextBox.ReadOnly = true;
-            operationTextBox.Size = new Size(965, 44);
+            operationTextBox.Size = new Size(964, 44);
             operationTextBox.TabIndex = 1;
             // 
             // warningLabel
             // 
             warningLabel.Font = new Font("Arial", 20F, FontStyle.Bold);
             warningLabel.ForeColor = Color.Red;
-            warningLabel.Location = new Point(21, 210);
+            warningLabel.Location = new Point(21, 208);
             warningLabel.Name = "warningLabel";
-            warningLabel.Size = new Size(696, 49);
+            warningLabel.Size = new Size(492, 49);
             warningLabel.TabIndex = 2;
             // 
             // nextButton
             // 
-            nextButton.Location = new Point(760, 236);
+            nextButton.Location = new Point(760, 216);
             nextButton.Name = "nextButton";
-            nextButton.Size = new Size(224, 50);
+            nextButton.Size = new Size(223, 50);
             nextButton.TabIndex = 3;
             nextButton.Text = "次へ";
             nextButton.Click += NextButton_Click;
@@ -98,12 +100,22 @@ namespace Jimikun
             windowLabel.ForeColor = Color.Black;
             windowLabel.Location = new Point(21, 139);
             windowLabel.Name = "windowLabel";
-            windowLabel.Size = new Size(708, 49);
+            windowLabel.Size = new Size(962, 49);
             windowLabel.TabIndex = 4;
+            // 
+            // failureButton
+            // 
+            failureButton.Location = new Point(519, 216);
+            failureButton.Name = "failureButton";
+            failureButton.Size = new Size(223, 50);
+            failureButton.TabIndex = 5;
+            failureButton.Text = "手順実施失敗";
+            failureButton.Click += new EventHandler(FailureButton_Click);
             // 
             // Wizard
             // 
             ClientSize = new Size(997, 301);
+            Controls.Add(failureButton);
             Controls.Add(windowLabel);
             Controls.Add(stepLabel);
             Controls.Add(operationTextBox);
@@ -163,6 +175,21 @@ namespace Jimikun
             // クリップボードに warningLabel.Text の内容をコピー
             Clipboard.SetText(operationTextBox.Text);
         }
+        private void FailureButton_Click(object sender, EventArgs e)
+        {
+            // 失敗理由入力画面を表示
+            FailureReasonForm failureForm = new FailureReasonForm();
+            DateTime overallEndTime = DateTime.Now;
+            TimeSpan overallDuration = overallEndTime - overallStartTime;
+            failureForm.ShowDialog();
+            if (failureForm.DialogResult == DialogResult.OK)
+            {
+                string failureReason = failureForm.FailureReason;
+                LogTrace($"手順強制中止！中止理由: {failureReason}");
+                GenerateReport(overallDuration, failureReason);
+                Application.Exit();
+            }
+        }
 
         private void NextButton_Click(object sender, EventArgs e)
         {
@@ -196,7 +223,7 @@ namespace Jimikun
                 TimeSpan overallDuration = overallEndTime - overallStartTime;
                 LogTrace("手順完了");
 
-                GenerateReport(overallDuration);
+                GenerateReport(overallDuration, "");
                 Application.Exit();
             }
             else
@@ -214,7 +241,7 @@ namespace Jimikun
                 return $"{Math.Ceiling(duration.TotalMinutes)}分";
         }
 
-        private void GenerateReport(TimeSpan overallDuration)
+        private void GenerateReport(TimeSpan overallDuration, string cancelReason)
         {
             string pathWithoutExtension = Path.GetDirectoryName(csvPath);
             string reportPath = pathWithoutExtension + "\\OperationReport.txt";
@@ -243,7 +270,12 @@ namespace Jimikun
 
                 writer.WriteLine("==============================");
             }
-            MessageBox.Show($"お疲れ様です！\n手順完了し、レポートが出力されました: {reportPath}");
+            if (string.IsNullOrWhiteSpace(cancelReason))
+            {
+                MessageBox.Show($"お疲れ様です！\n手順完了し、レポートが出力されました: {reportPath}");
+            } else {
+                MessageBox.Show($"手順が強制中止されました。レポートが出力されました: {reportPath}");
+            }
         }
 
         private void ExecuteCaptureCommands()
